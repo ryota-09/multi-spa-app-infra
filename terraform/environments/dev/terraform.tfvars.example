@@ -1,0 +1,16 @@
+# AWS基本設定
+aws_region   = "ap-northeast-1"
+project_name = "multi-spa-app"
+
+# ドメイン設定（オプショナル）
+# domain_name = "example.com"
+
+# ECRイメージタグ
+ecr_image_tag = "latest"
+
+# 追加設定例:
+# 本番環境では以下の設定を調整してください
+# - app_runner_cpu = "1 vCPU"
+# - app_runner_memory = "2 GB"
+# - cloudfront_price_class = "PriceClass_All"
+# - enable_cloudfront_logging = true
