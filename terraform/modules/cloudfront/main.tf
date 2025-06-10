@@ -49,6 +49,9 @@ resource "aws_cloudfront_distribution" "main" {
 
     # キャッシュ無効化ポリシーを適用
     cache_policy_id = "4135ea2d-6df8-44a3-9df3-4b5a84be39ad" # CACHING_DISABLED
+    
+    # NextAuth.js用にHost以外のすべてのヘッダー、Cookie、クエリパラメータを転送
+    origin_request_policy_id = "b689b0a8-53d0-40ab-baf2-68738e2966ac" # AllViewerExceptHostHeader
 
     viewer_protocol_policy = "redirect-to-https"
     compress               = true
@@ -63,6 +66,9 @@ resource "aws_cloudfront_distribution" "main" {
 
     # キャッシュ無効化ポリシーを適用
     cache_policy_id = "4135ea2d-6df8-44a3-9df3-4b5a84be39ad" # CACHING_DISABLED
+    
+    # NextAuth.js用にすべてのヘッダー、Cookie、クエリパラメータを転送
+    origin_request_policy_id = "33f36d7e-f396-46d9-90e0-52428a34d9dc" # AllViewer
 
     viewer_protocol_policy = "redirect-to-https"
     compress               = true

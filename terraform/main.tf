@@ -48,6 +48,10 @@ module "app_runner" {
   ecr_repository_uri = var.existing_ecr_repository_uri != null ? var.existing_ecr_repository_uri : module.ecr[0].repository_uri
   image_tag    = var.ecr_image_tag
   
+  # NextAuth.js設定
+  nextauth_url    = var.nextauth_url
+  nextauth_secret = var.nextauth_secret
+  
   depends_on = [module.ecr]
 }
 

@@ -32,4 +32,8 @@ module "multi_spa_app" {
 
   # 既存のECRリポジトリを使用
   existing_ecr_repository_uri = var.existing_ecr_repository_uri
+
+  # NextAuth.js設定
+  nextauth_url    = var.nextauth_url
+  nextauth_secret = var.nextauth_secret
 }

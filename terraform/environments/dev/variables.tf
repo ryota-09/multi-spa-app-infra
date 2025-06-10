@@ -27,3 +27,16 @@ variable "existing_ecr_repository_uri" {
   type        = string
   default     = null
 }
+
+variable "nextauth_url" {
+  description = "NextAuth.jsのベースURL"
+  type        = string
+  default     = "https://d1siy5yeuv43sy.cloudfront.net"
+}
+
+variable "nextauth_secret" {
+  description = "NextAuth.jsのシークレットキー"
+  type        = string
+  sensitive   = true
+  default     = "your-secret-key-here-replace-with-random-string"
+}

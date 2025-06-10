@@ -60,3 +60,22 @@ variable "log_retention_days" {
   type        = number
   default     = 7
 }
+
+variable "nextauth_url" {
+  description = "NextAuth.jsのベースURL（CloudFrontドメイン）"
+  type        = string
+  default     = ""
+}
+
+variable "nextauth_secret" {
+  description = "NextAuth.jsのシークレットキー"
+  type        = string
+  sensitive   = true
+  default     = "default-secret-key-change-in-production"
+}
+
+variable "cloudfront_domain_name" {
+  description = "CloudFrontのドメイン名"
+  type        = string
+  default     = ""
+}

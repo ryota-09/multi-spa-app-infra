@@ -80,3 +80,16 @@ variable "cloudfront_cache_ttl" {
     max_ttl     = 31536000  # 1年
   }
 }
+
+variable "nextauth_url" {
+  description = "NextAuth.jsのベースURL（指定しない場合はCloudFrontドメインを使用）"
+  type        = string
+  default     = null
+}
+
+variable "nextauth_secret" {
+  description = "NextAuth.jsのシークレットキー"
+  type        = string
+  sensitive   = true
+  default     = "default-secret-key-change-in-production"
+}

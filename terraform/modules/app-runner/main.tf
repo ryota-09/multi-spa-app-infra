@@ -59,10 +59,12 @@ resource "aws_apprunner_service" "main" {
       image_configuration {
         port = "3000"
         runtime_environment_variables = {
-          NODE_ENV   = "production"
-          STANDALONE = "true"
-          HOSTNAME   = "0.0.0.0"
-          PORT       = "3000"
+          NODE_ENV       = "production"
+          STANDALONE     = "true"
+          HOSTNAME       = "0.0.0.0"
+          PORT          = "3000"
+          NEXTAUTH_URL   = var.nextauth_url
+          NEXTAUTH_SECRET = var.nextauth_secret
         }
         start_command = "node server.js"
       }
