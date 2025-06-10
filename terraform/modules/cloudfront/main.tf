@@ -23,20 +23,8 @@ resource "aws_cloudfront_distribution" "main" {
   comment             = "CloudFront distribution for ${var.project_name}-${var.environment}"
   default_root_object = "index.html"
 
-  # カスタムエラーページ（SPAの場合）
-  custom_error_response {
-    error_caching_min_ttl = 0
-    error_code            = 404
-    response_code         = 200
-    response_page_path    = "/index.html"
-  }
-
-  custom_error_response {
-    error_caching_min_ttl = 0
-    error_code            = 403
-    response_code         = 200
-    response_page_path    = "/index.html"
-  }
+  # カスタムエラーレスポンスを削除
+  # 動的ルート(/login, /api等)は各オリジンで適切に処理される
 
   # デフォルトキャッシュビヘイビア（静的コンテンツ）
   default_cache_behavior {
@@ -44,17 +32,25 @@ resource "aws_cloudfront_distribution" "main" {
     cached_methods   = ["GET", "HEAD"]
     target_origin_id = "S3-${var.s3_bucket_name}"
 
-    forwarded_values {
-      query_string = false
-      cookies {
-        forward = "none"
-      }
-    }
+    # マネージドキャッシュポリシーを使用（静的コンテンツ用）
+    cache_policy_id = "658327ea-f89d-4fab-a63d-7e88639e58f6" # CACHING_OPTIMIZED
 
     viewer_protocol_policy = "redirect-to-https"
-    min_ttl                = 0
-    default_ttl            = var.default_cache_ttl
-    max_ttl                = var.max_cache_ttl
+    compress               = true
+  }
+
+  # ログインページ用のキャッシュビヘイビア（動的コンテンツ）
+  # /login および /login/* パスに対応
+  ordered_cache_behavior {
+    path_pattern     = "/login*"
+    allowed_methods  = ["DELETE", "GET", "HEAD", "OPTIONS", "PATCH", "POST", "PUT"]
+    cached_methods   = ["GET", "HEAD"]
+    target_origin_id = "AppRunner-${var.project_name}-${var.environment}"
+
+    # キャッシュ無効化ポリシーを適用
+    cache_policy_id = "4135ea2d-6df8-44a3-9df3-4b5a84be39ad" # CACHING_DISABLED
+
+    viewer_protocol_policy = "redirect-to-https"
     compress               = true
   }
 
@@ -65,22 +61,109 @@ resource "aws_cloudfront_distribution" "main" {
     cached_methods   = ["GET", "HEAD"]
     target_origin_id = "AppRunner-${var.project_name}-${var.environment}"
 
-    forwarded_values {
-      query_string = true
-      headers      = ["*"]
-      cookies {
-        forward = "all"
-      }
-    }
+    # キャッシュ無効化ポリシーを適用
+    cache_policy_id = "4135ea2d-6df8-44a3-9df3-4b5a84be39ad" # CACHING_DISABLED
 
     viewer_protocol_policy = "redirect-to-https"
-    min_ttl                = 0
-    default_ttl            = 0
-    max_ttl                = 0
     compress               = true
+  }
 
-    # キャッシュを無効にするヘッダー
-    response_headers_policy_id = aws_cloudfront_response_headers_policy.no_cache.id
+  # テストルート用のキャッシュビヘイビア（動的コンテンツ）
+  ordered_cache_behavior {
+    path_pattern     = "/test-route*"
+    allowed_methods  = ["DELETE", "GET", "HEAD", "OPTIONS", "PATCH", "POST", "PUT"]
+    cached_methods   = ["GET", "HEAD"]
+    target_origin_id = "AppRunner-${var.project_name}-${var.environment}"
+
+    # キャッシュ無効化ポリシーを適用
+    cache_policy_id = "4135ea2d-6df8-44a3-9df3-4b5a84be39ad" # CACHING_DISABLED
+
+    viewer_protocol_policy = "redirect-to-https"
+    compress               = true
+  }
+
+  # Next.js静的アセット用のキャッシュビヘイビア（長期キャッシュ）
+  ordered_cache_behavior {
+    path_pattern     = "/_next/static/*"
+    allowed_methods  = ["GET", "HEAD"]
+    cached_methods   = ["GET", "HEAD"]
+    target_origin_id = "S3-${var.s3_bucket_name}"
+
+    # 静的アセットは長期キャッシュ（ファイル名にハッシュが含まれるため）
+    cache_policy_id = "658327ea-f89d-4fab-a63d-7e88639e58f6" # CACHING_OPTIMIZED
+
+    viewer_protocol_policy = "redirect-to-https"
+    compress               = true
+  }
+
+  # 画像とアイコン用のキャッシュビヘイビア
+  ordered_cache_behavior {
+    path_pattern     = "*.ico"
+    allowed_methods  = ["GET", "HEAD"]
+    cached_methods   = ["GET", "HEAD"]
+    target_origin_id = "S3-${var.s3_bucket_name}"
+
+    # 静的リソースは長期キャッシュ
+    cache_policy_id = "658327ea-f89d-4fab-a63d-7e88639e58f6" # CACHING_OPTIMIZED
+
+    viewer_protocol_policy = "redirect-to-https"
+    compress               = true
+  }
+
+  # SVGファイル用のキャッシュビヘイビア
+  ordered_cache_behavior {
+    path_pattern     = "*.svg"
+    allowed_methods  = ["GET", "HEAD"]
+    cached_methods   = ["GET", "HEAD"]
+    target_origin_id = "S3-${var.s3_bucket_name}"
+
+    # 静的リソースは長期キャッシュ
+    cache_policy_id = "658327ea-f89d-4fab-a63d-7e88639e58f6" # CACHING_OPTIMIZED
+
+    viewer_protocol_policy = "redirect-to-https"
+    compress               = true
+  }
+
+  # 画像ファイル用のキャッシュビヘイビア
+  ordered_cache_behavior {
+    path_pattern     = "/images/*"
+    allowed_methods  = ["GET", "HEAD"]
+    cached_methods   = ["GET", "HEAD"]
+    target_origin_id = "S3-${var.s3_bucket_name}"
+
+    # 静的リソースは長期キャッシュ
+    cache_policy_id = "658327ea-f89d-4fab-a63d-7e88639e58f6" # CACHING_OPTIMIZED
+
+    viewer_protocol_policy = "redirect-to-https"
+    compress               = true
+  }
+
+  # HTMLファイル用のキャッシュビヘイビア（短期キャッシュ）
+  ordered_cache_behavior {
+    path_pattern     = "*.html"
+    allowed_methods  = ["GET", "HEAD"]
+    cached_methods   = ["GET", "HEAD"]
+    target_origin_id = "S3-${var.s3_bucket_name}"
+
+    # HTMLファイルは短期キャッシュ
+    cache_policy_id = "4135ea2d-6df8-44a3-9df3-4b5a84be39ad" # CACHING_DISABLED
+
+    viewer_protocol_policy = "redirect-to-https"
+    compress               = true
+  }
+
+  # ルートパス用のキャッシュビヘイビア（短期キャッシュ）
+  ordered_cache_behavior {
+    path_pattern     = "/"
+    allowed_methods  = ["GET", "HEAD"]
+    cached_methods   = ["GET", "HEAD"]
+    target_origin_id = "S3-${var.s3_bucket_name}"
+
+    # ルートページは短期キャッシュ
+    cache_policy_id = "4135ea2d-6df8-44a3-9df3-4b5a84be39ad" # CACHING_DISABLED
+
+    viewer_protocol_policy = "redirect-to-https"
+    compress               = true
   }
 
   price_class = var.price_class
@@ -188,6 +271,10 @@ resource "aws_s3_bucket_lifecycle_configuration" "logs" {
   rule {
     id     = "delete_old_logs"
     status = "Enabled"
+
+    filter {
+      prefix = "cloudfront-logs/"
+    }
 
     expiration {
       days = var.log_retention_days

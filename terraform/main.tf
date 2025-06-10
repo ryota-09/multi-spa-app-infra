@@ -46,6 +46,7 @@ module "app_runner" {
   project_name = var.project_name
   environment  = var.environment
   ecr_repository_uri = var.existing_ecr_repository_uri != null ? var.existing_ecr_repository_uri : module.ecr[0].repository_uri
+  image_tag    = var.ecr_image_tag
   
   depends_on = [module.ecr]
 }

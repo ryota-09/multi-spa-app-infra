@@ -22,13 +22,13 @@ variable "image_tag" {
 variable "cpu" {
   description = "App RunnerのCPU設定"
   type        = string
-  default     = "0.25 vCPU"
+  default     = "512"
 }
 
 variable "memory" {
   description = "App Runnerのメモリ設定"
   type        = string
-  default     = "0.5 GB"
+  default     = "1024"
 }
 
 variable "auto_deployments_enabled" {

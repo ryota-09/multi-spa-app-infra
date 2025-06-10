@@ -54,7 +54,7 @@ resource "aws_cloudfront_origin_access_control" "static_files" {
 }
 
 # S3バケットポリシー（CloudFrontからのアクセスのみ許可）
-# Note: CloudFrontディストリビューション作成後に別途適用する必要があります
+# Note: メインのTerraformファイルで定義されています
 
 # S3バケットのウェブサイト設定
 resource "aws_s3_bucket_website_configuration" "static_files" {

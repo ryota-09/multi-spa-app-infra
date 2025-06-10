@@ -52,6 +52,8 @@ resource "aws_ecr_lifecycle_policy" "main" {
   })
 }
 
+
+
 # ECRリポジトリポリシー（App Runner用のアクセス許可）
 resource "aws_ecr_repository_policy" "main" {
   repository = aws_ecr_repository.main.name

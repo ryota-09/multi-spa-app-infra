@@ -59,10 +59,12 @@ resource "aws_apprunner_service" "main" {
       image_configuration {
         port = "3000"
         runtime_environment_variables = {
-          NODE_ENV   = var.environment
+          NODE_ENV   = "production"
           STANDALONE = "true"
           HOSTNAME   = "0.0.0.0"
+          PORT       = "3000"
         }
+        start_command = "node server.js"
       }
       image_identifier      = "${var.ecr_repository_uri}:${var.image_tag}"
       image_repository_type = "ECR"
@@ -74,18 +76,18 @@ resource "aws_apprunner_service" "main" {
   }
 
   instance_configuration {
-    cpu               = var.cpu
-    memory            = var.memory
+    cpu               = "512"
+    memory            = "1024"
     instance_role_arn = aws_iam_role.app_runner_instance.arn
   }
 
   health_check_configuration {
     healthy_threshold   = 1
-    interval            = 10
-    path                = "/api/health"
+    interval            = 20
+    path                = "/"
     protocol            = "HTTP"
-    timeout             = 5
-    unhealthy_threshold = 5
+    timeout             = 15
+    unhealthy_threshold = 10
   }
 
   auto_scaling_configuration_arn = aws_apprunner_auto_scaling_configuration_version.main.arn
